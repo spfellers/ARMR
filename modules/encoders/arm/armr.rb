@@ -28,6 +28,14 @@ class Metasploit3 < Msf::Encoder
   # Encodes the payload
   #
   def encode_block(state, buf)
+    hex = buf.unpack('C*').collect { |c| "\\\\\\x%.2x" % c }.join
+    for index in 0..(state.badchars.length - 1)
+      buf.gsub!(state.badchars[index], '')
+
+    end
+
+    puts buf
+    return buf
     # Skip encoding for empty badchars
     if state.badchars.length == 0
       return buf
@@ -61,6 +69,8 @@ class Metasploit3 < Msf::Encoder
     else
       hex = "'" + buf.unpack('C*').collect { |c| "\\x%.2x" % c }.join + "'"
     end
+
+    puts "hello"
 
     # Are pipe characters restricted?
     if state.badchars.include?("|")
