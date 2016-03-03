@@ -28,73 +28,21 @@ class Metasploit3 < Msf::Encoder
   # Encodes the payload
   #
   def encode_block(state, buf)
-    hex = buf.unpack('C*').collect { |c| "\\\\\\x%.2x" % c }.join
     for index in 0..(state.badchars.length - 1)
-      buf.gsub!(state.badchars[index], '')
-
+      #remove the bad chars
+      buf = remove_badchar(state.badchars[index], buf)
     end
-
-    puts buf
+    puts buf #be nice and print the results for easy viewing
     return buf
-    # Skip encoding for empty badchars
-    if state.badchars.length == 0
-      return buf
-    end
 
-    if state.badchars.include?("-")
-      raise EncodingError
-    else
-      # Without an escape character we can't escape anything, so echo
-      # won't work.
-      if state.badchars.include?("\\")
-        raise EncodingError
-      else
-        buf = encode_block_bash_echo(state,buf)
-      end
-    end
-
-    return buf
   end
 
   #
-  # Uses bash's echo -ne command to hex encode the command string
+  # Uses string's gsub to remove the char
   #
-  def encode_block_bash_echo(state, buf)
-
-    hex = ''
-
-    # Can we use single quotes to enclose the echo arguments?
-    if state.badchars.include?("'")
-      hex = buf.unpack('C*').collect { |c| "\\\\\\x%.2x" % c }.join
-    else
-      hex = "'" + buf.unpack('C*').collect { |c| "\\x%.2x" % c }.join + "'"
-    end
-
-    puts "hello"
-
-    # Are pipe characters restricted?
-    if state.badchars.include?("|")
-      # How about backticks?
-      if state.badchars.include?("`")
-        # Last ditch effort, dollar paren
-        if state.badchars.include?("$") or state.badchars.include?("(")
-          raise EncodingError
-        else
-          buf = "$(/bin/echo -ne #{hex})"
-        end
-      else
-        buf = "`/bin/echo -ne #{hex}`"
-      end
-    else
-      buf = "/bin/echo -ne #{hex}|sh"
-    end
-
-    # Remove spaces from the command string
-    if state.badchars.include?(" ")
-      buf.gsub!(/\s/, '${IFS}')
-    end
-
-    return buf
+  def remove_badchar(char, buf)
+    buf.gsub!(char, '')
+    buf
   end
 
 end
