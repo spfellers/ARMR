@@ -8,21 +8,28 @@ require 'msf/core'
 
 
 class Metasploit3 < Msf::Encoder
+  # will be ::XorAdditiveFeedback in the future
 
-  Rank = GoodRanking
+  Rank = ExcellentRanking
 
-  SPIT_OUT_BINARY = false
+  OUTPUT_HEX = false
+  OUTPUT_BINARY = true
+  PRINT_BUFFER = false
+
 
   def initialize
     super(
-      'Name'             => 'Echo Command Encoder',
+      'Name'             => 'ARMR Encoder',
       'Description'      => %q{
-        This encoder uses echo and backlash escapes to avoid commonly restricted characters.
+        This encoder implements a polymorphic XOR additive feedback encoder.
+        The decoder stub is generated based on dynamic instruction
+        substitution and dynamic block ordering.  Registers are also
+        selected dynamically.
       },
-      'Author'           => 'hdm',
+      'Author'           => 'Team 23',
       'Arch'             => ARCH_CMD,
       'Platform'         => 'unix',
-      'EncoderType'      => Msf::Encoder::Type::CmdUnixEcho)
+      'EncoderType'      => Msf::Encoder::Type::Unspecified)
   end
 
 
@@ -34,7 +41,14 @@ class Metasploit3 < Msf::Encoder
       #remove the bad chars
       buf = remove_badchar(state.badchars[index], buf)
     end
-    puts buf #be nice and print the results for easy viewing
+
+    if PRINT_BUFFER
+      puts buf #be nice and print the results for easy viewing
+    elsif OUTPUT_BINARY
+      puts buf.unpack('B*')[0].scan(/......../).map {|x| x + ' '}.join #print binary
+    elsif OUTPUT_HEX
+      puts buf.unpack('H*')[0].scan(/../).map {|x| x + ' '}.join #print hex
+    end
     return buf
 
   end
