@@ -11,6 +11,8 @@ class Metasploit3 < Msf::Encoder
 
   Rank = GoodRanking
 
+  SPIT_OUT_BINARY = false
+
   def initialize
     super(
       'Name'             => 'Echo Command Encoder',
