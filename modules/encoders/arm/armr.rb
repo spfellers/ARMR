@@ -7,8 +7,7 @@
 require 'msf/core'
 
 
-class Metasploit3 < Msf::Encoder
-  # will be ::XorAdditiveFeedback in the future
+class Metasploit3 < Msf::Encoder::XorAdditiveFeedback
 
   Rank = ExcellentRanking
 
@@ -35,8 +34,9 @@ class Metasploit3 < Msf::Encoder
 
   #
   # Encodes the payload
+  # Currently superfluous, since XorAdditiveFeedback's encode_block is used
   #
-  def encode_block(state, buf)
+  def old_encode_block(state, buf)
     for index in 0..(state.badchars.length - 1)
       #remove the bad chars
       buf = remove_badchar(state.badchars[index], buf)
