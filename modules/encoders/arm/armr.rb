@@ -31,6 +31,27 @@ class Metasploit3 < Msf::Encoder::XorAdditiveFeedback
       'EncoderType'      => Msf::Encoder::Type::Unspecified)
   end
 
+  # Indicate that this module can preserve some registers
+  def can_preserve_registers?
+    true
+  end
+
+  # A list of registers always touched by this encoder
+  def modified_registers
+    # ESP is assumed and is handled through preserves_stack?
+    [
+        # The counter register is hardcoded
+        Rex::Arch::ARM::R3,
+        # These are modified by div and mul operations
+        Rex::Arch::ARM::V1, Rex::Arch::ARM::V2
+    ]
+  end
+
+  # Always blacklist these registers in our block generation
+  def block_generator_register_blacklist
+    [Rex::Arch::ARM::SP, Rex::Arch::ARM::R3] | saved_registers
+  end
+
 
   #
   # Encodes the payload
